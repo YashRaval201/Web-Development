@@ -1,8 +1,11 @@
 //jshint esversion:6
+import dotenv from "dotenv"
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose"
 import encrypt from "mongoose-encryption"
+
+dotenv.config(); 
 
 const app = express();
 const port = 3000;
@@ -13,16 +16,16 @@ app.use(bodyParser.urlencoded({
     extended: true
 }))
 
-mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true})
+.then(() => console.log("Connected to MongoDB"))
+.catch(err => console.error("Could not connect to MongoDB", err));
 
 const userSchema = new mongoose.Schema({
     email: String,
     password: String
 })
 
-const secret = "ThisIsOurLittleSecret.";
-
-userSchema.plugin(encrypt, { secret: secret, encryptedFields: ["password"] });
+userSchema.plugin(encrypt, { secret: process.env.SECRET, encryptedFields: ["password"] });
 
 const User = new mongoose.model("User", userSchema);
 
